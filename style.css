@@ -27,7 +27,7 @@ body {
 #progress-bar {
     width: 0%;
     height: 100%;
-    background: #ff8fa3; /* daha açık pembe */
+    background: #ff8fa3;
     box-shadow: 0 0 15px #ff8fa3;
     transition: width 0.6s ease-out;
 }
