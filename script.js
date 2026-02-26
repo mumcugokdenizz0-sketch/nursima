@@ -140,10 +140,8 @@ class Bubble {
 let entities = [];
 const bubbles = [];
 
-// Çiçeği rastgele bir katmana ekleme fonksiyonu (Düzeltildi)
 function addEntityRandomly(x, y) {
     const newEntity = { stem: new Stem(x, y), flower: null };
-    // Rastgele bir indeks seç
     const randomIndex = Math.floor(Math.random() * (entities.length + 1));
     entities.splice(randomIndex, 0, newEntity);
 }
@@ -173,7 +171,7 @@ function handleInteraction(x, y) {
         progressValue = 2;
         progressBar.style.width = progressValue + '%';
         triggerBubbles();
-        addEntityRandomly(x, y);
+        addEntityRandomly(x, y); 
         setTimeout(() => { text2.style.display = 'none'; }, 1500);
     }
     else if (currentStep === 3) {
@@ -205,15 +203,13 @@ function animate(time) {
         if (bubbles[i].life <= 0) bubbles.splice(i, 1);
     }
 
-    // ÇİZİM SIRASI DÜZELTİLDİ:
-    // Dizinin başından (0) sonuna doğru çiziyoruz.
-    // Böylece dizide daha yüksek indekste olan her zaman daha önde görünür.
+    // Çizim sırası: Dizinin başından sonuna (Yeni eklenen rastgele katmanda görünür)
     for (let i = 0; i < entities.length; i++) {
         let ent = entities[i];
         ent.stem.update();
         ent.stem.draw(ctx);
         
-        if (!ent.isSinking && ent.stem.isFinished && !ent.flower) {
+        if (!ent.stem.isSinking && ent.stem.isFinished && !ent.flower) {
             ent.flower = new Flower(ent.stem.endX, ent.stem.endY);
         }
 
@@ -223,7 +219,7 @@ function animate(time) {
         }
     }
 
-    // Silme işlemini ayrı bir döngüde yapıyoruz ki çizim sırası bozulmasın
+    // Temizlik döngüsü
     for (let i = entities.length - 1; i >= 0; i--) {
         let ent = entities[i];
         if (ent.stem.isSinking && ent.stem.currentStep <= 0 && (!ent.flower || ent.flower.shouldBeRemoved)) {
