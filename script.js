@@ -132,13 +132,21 @@ class Bubble {
         if (this.life <= 0) return;
         let alpha = this.life / this.maxLife;
         ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 143, 163, ${alpha})`; /* açık pembe baloncuklar */
+        ctx.fillStyle = `rgba(255, 143, 163, ${alpha})`;
         ctx.fill();
     }
 }
 
 let entities = [];
 const bubbles = [];
+
+// Çiçeği rastgele bir katmana ekleme fonksiyonu (Düzeltildi)
+function addEntityRandomly(x, y) {
+    const newEntity = { stem: new Stem(x, y), flower: null };
+    // Rastgele bir indeks seç
+    const randomIndex = Math.floor(Math.random() * (entities.length + 1));
+    entities.splice(randomIndex, 0, newEntity);
+}
 
 function triggerBubbles() {
     const barRect = progressBar.getBoundingClientRect();
@@ -165,14 +173,14 @@ function handleInteraction(x, y) {
         progressValue = 2;
         progressBar.style.width = progressValue + '%';
         triggerBubbles();
-        entities.push({ stem: new Stem(x, y), flower: null });
+        addEntityRandomly(x, y);
         setTimeout(() => { text2.style.display = 'none'; }, 1500);
     }
     else if (currentStep === 3) {
         progressValue = Math.min(progressValue + 2, 100);
         progressBar.style.width = progressValue + '%';
         triggerBubbles();
-        entities.push({ stem: new Stem(x, y), flower: null });
+        addEntityRandomly(x, y);
 
         if (progressValue >= 100) {
             isGameOver = true;
@@ -197,7 +205,10 @@ function animate(time) {
         if (bubbles[i].life <= 0) bubbles.splice(i, 1);
     }
 
-    for (let i = entities.length - 1; i >= 0; i--) {
+    // ÇİZİM SIRASI DÜZELTİLDİ:
+    // Dizinin başından (0) sonuna doğru çiziyoruz.
+    // Böylece dizide daha yüksek indekste olan her zaman daha önde görünür.
+    for (let i = 0; i < entities.length; i++) {
         let ent = entities[i];
         ent.stem.update();
         ent.stem.draw(ctx);
@@ -210,11 +221,16 @@ function animate(time) {
             ent.flower.update();
             ent.flower.draw(ctx, time);
         }
+    }
 
+    // Silme işlemini ayrı bir döngüde yapıyoruz ki çizim sırası bozulmasın
+    for (let i = entities.length - 1; i >= 0; i--) {
+        let ent = entities[i];
         if (ent.stem.isSinking && ent.stem.currentStep <= 0 && (!ent.flower || ent.flower.shouldBeRemoved)) {
             entities.splice(i, 1);
         }
     }
+
     requestAnimationFrame(animate);
 }
 requestAnimationFrame(animate);
